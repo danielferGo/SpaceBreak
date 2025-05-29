@@ -21,7 +21,7 @@ public class AlienManager : MonoBehaviour
         for (int i = 0; i < alienCount; i++)
         {
             Vector3 spawnPos = transform.position + Random.onUnitSphere * spawnRadius;
-            spawnPos.y = Mathf.Max(spawnPos.y, 0f); // Keep above ground
+            spawnPos.y = Mathf.Max(spawnPos.y, 0f);
 
             GameObject alienObj = Instantiate(alienPrefab, spawnPos, Quaternion.identity);
             Alien alien = alienObj.GetComponent<Alien>();

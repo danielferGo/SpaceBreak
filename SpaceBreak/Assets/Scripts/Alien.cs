@@ -12,15 +12,12 @@ public class Alien : MonoBehaviour
     [SerializeField] private AudioSource shooting;
     [SerializeField] private GameObject destroyedEffect;
 
-
-    private SpaceShip spaceShipComponent;
-
-
-    private float lastShootTime;
+    private SpaceShip _spaceShipComponent;
+    private float _lastShootTime;
 
     private void Start()
     {
-        spaceShipComponent = spaceShip.GetComponent<SpaceShip>();
+        _spaceShipComponent = spaceShip.GetComponent<SpaceShip>();
     }
 
     public void Init(Transform player)
@@ -30,21 +27,20 @@ public class Alien : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if(!_spaceShipComponent.IsAlive()) return;
         transform.position = Vector3.MoveTowards(transform.position, spaceShip.position, velocity * Time.deltaTime);
         transform.LookAt(spaceShip);
 
         var distance = Vector3.Distance(transform.position, spaceShip.position);
-        if (distance <= shootDistance + 0.1f && Time.time - lastShootTime >= shootCooldown)
+        if (distance <= shootDistance + 0.1f && Time.time - _lastShootTime >= shootCooldown)
         {
             Shoot();
-            lastShootTime = Time.time;
+            _lastShootTime = Time.time;
         }
 
-        if (distance <= 0.1f)
-        {
-            spaceShipComponent.TakeDamage(2);
-            Die();
-        }
+        if (!(distance <= 0.1f)) return;
+        _spaceShipComponent.TakeDamage(2);
+        Die();
     }
 
     private void Shoot()
@@ -59,7 +55,7 @@ public class Alien : MonoBehaviour
                 out var hit, shootDistance, spaceshipLayer)) return;
         if (hit.transform == spaceShip)
         {
-            spaceShipComponent.TakeDamage(1);
+            _spaceShipComponent.TakeDamage(1);
         }
     }
 
@@ -71,22 +67,22 @@ public class Alien : MonoBehaviour
         Destroy(gameObject);
     }
 
-    // private void OnDrawGizmos()
-    // {
-    //     var distance = Vector3.Distance(transform.position, spaceShip.position);
-    //     Debug.Log(distance);
-    //     Gizmos.color = Color.red;
-    //     if (Physics.SphereCast(transform.position, radius, transform.forward,
-    //             out RaycastHit hit, shootDistance, spaceshipLayer))
-    //     {
-    //         Gizmos.color = Color.green;
-    //
-    //         Gizmos.DrawLine(transform.position, hit.point);
-    //         Gizmos.DrawWireSphere(hit.point, radius);
-    //     }
-    //     else
-    //     {
-    //         Gizmos.DrawWireSphere(transform.position + transform.forward * shootDistance, radius);
-    //     }
-    // }
+    private void OnDrawGizmosSelected()
+    {
+        var distance = Vector3.Distance(transform.position, spaceShip.position);
+        Debug.Log(distance);
+        Gizmos.color = Color.red;
+        if (Physics.SphereCast(transform.position, radius, transform.forward,
+                out RaycastHit hit, shootDistance, spaceshipLayer))
+        {
+            Gizmos.color = Color.green;
+
+            Gizmos.DrawLine(transform.position, hit.point);
+            Gizmos.DrawWireSphere(hit.point, radius);
+        }
+        else
+        {
+            Gizmos.DrawWireSphere(transform.position + transform.forward * shootDistance, radius);
+        }
+    }
 }
